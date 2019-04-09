@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="MallManagement.jnlp">
+  <information>
+    <title>MallManagement</title>
+    <vendor>ari</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="MallManagement.jar" size="376916" download="eager" />
+    <jar href="lib/mysql-connector-java-5.1.18-bin.jar" size="789885" download="eager" />
+    <jar href="lib/swingx-all-1.6.5.jar" size="1494059" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="800" height="600" main-class="mallmanagement.MallManagement"  name="MallManagement" />
+  <update check="always"/>
+</jnlp>
