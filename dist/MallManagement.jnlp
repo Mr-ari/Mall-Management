@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="MallManagement.jar" size="376916" download="eager" />
+    <jar href="MallManagement.jar" size="411231" download="eager" />
     <jar href="lib/mysql-connector-java-5.1.18-bin.jar" size="789885" download="eager" />
     <jar href="lib/swingx-all-1.6.5.jar" size="1494059" download="eager" />
   </resources>

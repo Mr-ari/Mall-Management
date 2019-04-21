@@ -12,7 +12,6 @@ import javax.swing.Timer;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import mallmanagement.LoginPage;
-import mallmanagement.StockCheck;
 
 /**
  *
@@ -26,14 +25,12 @@ public class HomePage extends javax.swing.JFrame {
     public HomePage() {
         this.setTitle("Shopping Mall Management");
         initComponents();
-        ActionListener updateClockAction = new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-                Date date = new Date();
-                DateFormat dft = new SimpleDateFormat("HH:mm:ss");
-                String d = dft.format(date);
-                clock.setText(d);   
-        }
-    };
+        ActionListener updateClockAction = (ActionEvent e) -> {
+            Date date = new Date();
+            DateFormat dft = new SimpleDateFormat("HH:mm:ss");
+            String d = dft.format(date);
+            clock.setText(d);
+        };
         Timer timer = new Timer(1000,updateClockAction);
         timer.setInitialDelay(0);
         timer.start();
@@ -111,7 +108,10 @@ public class HomePage extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(logoutButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(65, 65, 65))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

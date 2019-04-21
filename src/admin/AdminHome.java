@@ -18,6 +18,7 @@ public class AdminHome extends javax.swing.JFrame {
      */
     public AdminHome() {
         initComponents();
+        this.setTitle("User Details");
     }
 
     /**
@@ -41,6 +42,7 @@ public class AdminHome extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(52, 73, 94));
 
@@ -65,6 +67,11 @@ public class AdminHome extends javax.swing.JFrame {
 
         userDetails.setBackground(new java.awt.Color(255, 255, 255));
         userDetails.setText("Users Details");
+        userDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                userDetailsActionPerformed(evt);
+            }
+        });
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/admin_sett.png"))); // NOI18N
         jLabel1.setText("jLabel1");
@@ -75,6 +82,7 @@ public class AdminHome extends javax.swing.JFrame {
 
         logoutBtn.setBackground(new java.awt.Color(255, 102, 102));
         logoutBtn.setText("Log Out");
+        logoutBtn.setBorder(null);
         logoutBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 logoutBtnActionPerformed(evt);
@@ -163,6 +171,8 @@ public class AdminHome extends javax.swing.JFrame {
 
     private void orderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderActionPerformed
         // TODO add your handling code here:
+        new OrderItem().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_orderActionPerformed
 
     private void newUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newUserActionPerformed
@@ -177,6 +187,12 @@ public class AdminHome extends javax.swing.JFrame {
         new LoginPage().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_logoutBtnActionPerformed
+
+    private void userDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userDetailsActionPerformed
+        // TODO add your handling code here:
+        new UserDetails().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_userDetailsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -206,10 +222,8 @@ public class AdminHome extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AdminHome().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new AdminHome().setVisible(true);
         });
     }
 

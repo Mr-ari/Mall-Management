@@ -15,6 +15,9 @@ import java.sql.*;
 import javax.swing.JOptionPane;
 import user.HomePage;
 import admin.AdminHome;
+import java.awt.HeadlessException;
+import java.awt.event.KeyEvent;
+
 public class LoginPage extends javax.swing.JFrame {
 
     /**
@@ -46,6 +49,12 @@ public class LoginPage extends javax.swing.JFrame {
         loginButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(44, 62, 80));
         jPanel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -89,6 +98,11 @@ public class LoginPage extends javax.swing.JFrame {
                 passwordActionPerformed(evt);
             }
         });
+        password.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                passwordKeyPressed(evt);
+            }
+        });
 
         exitButton.setBackground(new java.awt.Color(255, 77, 77));
         exitButton.setText("Exit");
@@ -105,6 +119,11 @@ public class LoginPage extends javax.swing.JFrame {
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loginButtonActionPerformed(evt);
+            }
+        });
+        loginButton.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                loginButtonKeyPressed(evt);
             }
         });
 
@@ -184,34 +203,49 @@ public class LoginPage extends javax.swing.JFrame {
         String pass = String.valueOf(password.getPassword());
         try{
             Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106");
-            PreparedStatement st = con.prepareStatement("select * from users where user_name=? and password=? and is_active=1");
-            st.setString(1, username);
-            st.setString(2, pass);
-            ResultSet rs = st.executeQuery();
-            int i=0;
-            if(rs.next()){
-                if(rs.getString("role").equals("a")){
-                    AdminHome adh =new AdminHome();
-                    adh.setVisible(true);
-                    this.dispose();
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106")) {
+                PreparedStatement st = con.prepareStatement("select * from users where user_name=? and password=? and is_active=1");
+                st.setString(1, username);
+                st.setString(2, pass);
+                ResultSet rs = st.executeQuery();
+                if(rs.next()){
+                    if(rs.getString("role").equals("a")){
+                        AdminHome adh =new AdminHome();
+                        adh.setVisible(true);
+                        this.dispose();
+                    }
+                    else {
+                        HomePage hm = new HomePage();
+                        hm.setVisible(true);
+                        this.dispose();
+                        
+                    }
                 }
-                else {
-                    HomePage hm = new HomePage();
-                    hm.setVisible(true);
-                    this.dispose();
-                    
+                else{
+                    JOptionPane.showMessageDialog(this,"Wrong Username or Password or Your Account Expire!!");
                 }
             }
-            else{
-                JOptionPane.showMessageDialog(this,"Wrong Username or Password or Your Account Expire!!");
-            }
-            con.close();
         }
-        catch(Exception e){
-            e.printStackTrace();
+        catch(HeadlessException | ClassNotFoundException | SQLException e){
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
     }//GEN-LAST:event_loginButtonActionPerformed
+
+    private void loginButtonKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_loginButtonKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_loginButtonKeyPressed
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formKeyPressed
+
+    private void passwordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+            loginButton.doClick();
+        }
+        
+    }//GEN-LAST:event_passwordKeyPressed
 
     /**
      * @param args the command line arguments
@@ -241,10 +275,8 @@ public class LoginPage extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LoginPage().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new LoginPage().setVisible(true);
         });
     }
 
