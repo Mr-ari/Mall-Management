@@ -56,6 +56,11 @@ public class AdminHome extends javax.swing.JFrame {
 
         stock.setBackground(new java.awt.Color(255, 255, 255));
         stock.setText("Manage Stock");
+        stock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stockActionPerformed(evt);
+            }
+        });
 
         order.setBackground(new java.awt.Color(255, 255, 255));
         order.setText("Items To Order");
@@ -193,6 +198,14 @@ public class AdminHome extends javax.swing.JFrame {
         new UserDetails().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_userDetailsActionPerformed
+
+    private void stockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stockActionPerformed
+        // TODO add your handling code here:
+        StockManage stm = new StockManage();
+        stm.setVisible(true);
+        stm.setTitle("Stock Manage");
+        this.dispose();
+    }//GEN-LAST:event_stockActionPerformed
 
     /**
      * @param args the command line arguments

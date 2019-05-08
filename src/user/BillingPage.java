@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
+import javax.swing.JOptionPane; 
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import java.sql.*;
@@ -31,13 +31,6 @@ public class BillingPage extends javax.swing.JFrame {
     Connection con;
     public BillingPage() {
         initComponents();
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106");
-        }
-        catch(ClassNotFoundException | SQLException e){
-            JOptionPane.showMessageDialog(this, e.getMessage());
-        }
         
     }
 
@@ -63,23 +56,30 @@ public class BillingPage extends javax.swing.JFrame {
         contactNo = new javax.swing.JTextField();
         rate = new javax.swing.JTextField();
         discount = new javax.swing.JCheckBox();
-        List<String> p_names = new ArrayList<>();
+        String [] prod_names;
+        String [] temp = new String[100000];
+        int i = 0;
         try{
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106");
             PreparedStatement ps = con.prepareStatement("select product_name from product_details order by product_name");
             ResultSet rs = ps.executeQuery();
+
             while(rs.next()){
-                p_names.add(rs.getString("product_name"));
+                temp[i] = rs.getString("product_name");
+                i++;
             }
             con.close();
         }
-        catch(SQLException e){
+        catch(ClassNotFoundException | SQLException | NullPointerException e){
             JOptionPane.showMessageDialog(null, e.getMessage());
         }
 
-        String []prod_names = new String[p_names.size()];
+        prod_names = new String [i];
 
-        for(int i=0;i<p_names.size();i++){
-            prod_names[i] = p_names.get(i);
+        while(i>0){
+            i--;
+            prod_names[i] = temp[i];
         }
         productBox = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -310,11 +310,12 @@ public class BillingPage extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 19, Short.MAX_VALUE)))
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(productBox, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pid, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pid, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(productBox, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -369,21 +370,36 @@ public class BillingPage extends javax.swing.JFrame {
     private void productBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_productBoxActionPerformed
         // TODO add your handling code here:
         PreparedStatement ps;
-        Product selected;
+        Connection conn;
+        
         try {
-            ps = con.prepareStatement("select * from product_details where product_name=?");
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106");
+            ps = conn.prepareStatement("select * from product_details where product_name=?");
             ps.setString(1, productBox.getSelectedItem().toString());
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
                 
-                selected = new Product(rs.getInt("product_id"),rs.getString("product_name"),rs.getInt("available_qty"),rs.getDouble("price"),rs.getInt("return_period"),rs.getDouble("product_discount"),rs.getInt("qty_threshold"));
+                Product selected = new Product(rs.getInt("product_id"),rs.getString("product_name"),rs.getInt("available_qty"),rs.getDouble("price"),rs.getInt("return_period"),rs.getDouble("product_discount"),rs.getInt("qty_threshold"));
+                pid.setText(String.valueOf(selected.getProduct_id()));
+                rate.setText(String.valueOf(selected.getPrice()));
             }
-            else{
-                JOptionPane.showMessageDialog(this, "Try Sometime Later");
-            }
-        } catch (SQLException ex) {
+            
+        } catch (SQLException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
+        finally{
+            try {
+                con.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(BillingPage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        
+        
+        
+        
         
     }//GEN-LAST:event_productBoxActionPerformed
 
@@ -405,6 +421,12 @@ public class BillingPage extends javax.swing.JFrame {
 
     private void addToCartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToCartActionPerformed
         // TODO add your handling code here:
+        if(quantity.getText().equals("") || pid.getText().equals((""))){
+            JOptionPane.showMessageDialog(this, "Some fields are empty");
+        }
+        else{
+            
+        }
         
     }//GEN-LAST:event_addToCartActionPerformed
 
