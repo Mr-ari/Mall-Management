@@ -42,8 +42,7 @@ public class OrderItem extends javax.swing.JFrame {
         DefaultTableModel product_table = (DefaultTableModel) product_details.getModel();
         List <Product> product_list = new ArrayList<>();
         try{
-        PreparedStatement ps = con.prepareStatement("select * from product_details where available_qty<?");
-        ps.setInt(1, 400);
+        PreparedStatement ps = con.prepareStatement("select * from product_details where available_qty<qty_threshold");
         ResultSet rs = ps.executeQuery();
         
         while(rs.next()){

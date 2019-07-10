@@ -5,24 +5,32 @@
  */
 package admin;
 
+import java.awt.HeadlessException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import objects.Vendor;
 
 /**
  *
  * @author ari
  */
-public class AddVendor extends javax.swing.JFrame {
+public class AddVendorUpdate extends javax.swing.JFrame {
 
     /**
-     * Creates new form AddVendor
+     * Creates new form AddVendorUpdate
      */
     UpdateStock us;
-    public AddVendor(UpdateStock us) {
+    public AddVendorUpdate(UpdateStock us) {
         this.us = us;
         initComponents();
-        
         fetch_vendor_table();
         
     }
@@ -164,7 +172,7 @@ public class AddVendor extends javax.swing.JFrame {
         jLabel10.setText("** Select Vendor From Table ");
 
         newAddBtn.setBackground(new java.awt.Color(50, 255, 126));
-        newAddBtn.setText("Add");
+        newAddBtn.setText("Add New");
         newAddBtn.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         newAddBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -316,7 +324,42 @@ public class AddVendor extends javax.swing.JFrame {
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
         // TODO add your handling code here:
-       
+        int selectedRow = vTable.getSelectedRow();
+        if(selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Select a Vendor from the list first");
+            return;
+        }
+        
+        int vid =(int) vTable.getValueAt(selectedRow, 0);
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106")) {
+                
+               PreparedStatement ps = con.prepareStatement("select * from vendor_details where vendor_id=?");
+               ps.setInt(1, vid);
+               
+               
+               ResultSet rs = ps.executeQuery();
+               int confirm = JOptionPane.showConfirmDialog(this, "Are You Sure ?");
+               if(confirm == 1 || confirm == 2) return;
+               if(rs.next()){
+                   us.vendors.add(new Vendor(rs.getInt("vendor_id"),rs.getString("vendor_name"),rs.getString("contact_number"),rs.getString("address"),rs.getString("accout_number")));
+                   
+               }
+               else{
+                   JOptionPane.showMessageDialog(this, "Something Wrong");
+                    return;
+               }
+               
+               us.show_product_details();
+               
+               con.close();
+               this.dispose();
+            }
+        }
+        catch(HeadlessException | ClassNotFoundException | SQLException e){
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
 
     }//GEN-LAST:event_saveBtnActionPerformed
 
@@ -328,7 +371,29 @@ public class AddVendor extends javax.swing.JFrame {
         // TODO add your handling code here:
         String check = check_fields();
         if (check.isEmpty()){
-            
+            try{
+            Class.forName("com.mysql.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106")) {
+                
+                PreparedStatement ps= con.prepareStatement("INSERT INTO vendor_details(vendor_id,vendor_name,contact_number,address,accout_number) VALUES (null,?,?,?,?)");
+                ps.setString(1, vname.getText());
+                ps.setString(2,vcno.getText());
+                ps.setString(3, vaddr.getText());
+                ps.setString(4, vaccno.getText());
+                ps.execute();
+                JOptionPane.showMessageDialog(this, "New Vendor Added");
+                vname.setText("");
+                vcno.setText("");
+                vaddr.setText("");
+                vaccno.setText("");
+                
+               fetch_vendor_table();
+               con.close();
+            }
+        }
+        catch(HeadlessException | ClassNotFoundException | SQLException e){
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
         }
         else if(check.equals("Blank Fields not Allowed !!")) JOptionPane.showMessageDialog(this, check);
         else{
@@ -402,6 +467,27 @@ public class AddVendor extends javax.swing.JFrame {
         int sz = table.getRowCount();
         for(int i=0;i<sz;i++) table.removeRow(0);
         
+        List <Vendor> vendor_list = new ArrayList<>();
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mall_management","root","ari1106")) {
+                
+                PreparedStatement ps = con.prepareStatement("select * from vendor_details order by vendor_name");
+                ResultSet rs = ps.executeQuery();
+                while(rs.next()){
+                    vendor_list.add(new Vendor(rs.getInt("vendor_id"),rs.getString("vendor_name"),rs.getString("contact_number"),rs.getString("address"),rs.getString("accout_number")));
+                }
+               
+               con.close();
+            }
+        }
+        catch(HeadlessException | ClassNotFoundException | SQLException e){
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+        
+        vendor_list.forEach((v)->{
+            table.addRow(new Object[]{v.getVendor_id(),v.getVendor_name(),v.getContact_no()});
+        });
         
     }
     

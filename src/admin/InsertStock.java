@@ -11,8 +11,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import objects.Vendor;
 
 /**
  *
@@ -23,7 +28,9 @@ public class InsertStock extends javax.swing.JFrame {
     /**
      * Creates new form InsertStock
      */
+    public List<Vendor> vendor;
     public InsertStock() {
+        vendor = new ArrayList<>();
         initComponents();
     }
 
@@ -58,8 +65,8 @@ public class InsertStock extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         resetBtn = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
-        pthres1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        vname = new javax.swing.JTextField();
+        addVendorBtn = new javax.swing.JButton();
 
         jLabel10.setText("jLabel10");
 
@@ -189,14 +196,20 @@ public class InsertStock extends javax.swing.JFrame {
         jLabel11.setFont(new java.awt.Font("Dialog", 0, 16)); // NOI18N
         jLabel11.setText("Vendor Name");
 
-        pthres1.setFont(new java.awt.Font("DialogInput", 0, 14)); // NOI18N
-        pthres1.addActionListener(new java.awt.event.ActionListener() {
+        vname.setEditable(false);
+        vname.setFont(new java.awt.Font("DialogInput", 0, 14)); // NOI18N
+        vname.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pthres1ActionPerformed(evt);
+                vnameActionPerformed(evt);
             }
         });
 
-        jButton1.setText("ADD");
+        addVendorBtn.setText("ADD");
+        addVendorBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addVendorBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -234,9 +247,9 @@ public class InsertStock extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(pthres1, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(vname, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jButton1))
+                                        .addComponent(addVendorBtn))
                                     .addComponent(pthres, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -283,8 +296,8 @@ public class InsertStock extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pthres1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(vname, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addVendorBtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(resetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -330,12 +343,35 @@ public class InsertStock extends javax.swing.JFrame {
                ps.setDouble(5, Double.valueOf(pdis.getText()));
                ps.setInt(6, Integer.valueOf(pthres.getText()));
                
+               
                if(!ps.execute()){
                    JOptionPane.showMessageDialog(this, "Product Added !");
-                   fields_reset();
                }else{
                    JOptionPane.showMessageDialog(this, "Try Sometime Later");
                }
+               
+               vendor.forEach((v)->{
+                   int prod_id;
+                    try {
+                        PreparedStatement get_pid = con.prepareStatement("select * from product_details where product_name=?");
+                        get_pid.setString(1, pname.getText());
+                        ResultSet rs1 = get_pid.executeQuery();
+                        if(rs1.next()){
+                            prod_id = rs1.getInt("product_id");
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(this, "Try Sometime Later");
+                            return;
+                        }
+                        PreparedStatement vps = con.prepareStatement("insert into vendor_product_details(product_id,vendor_id) values(?,?)");
+                        vps.setInt(1,prod_id);
+                        vps.setInt(2, v.getVendor_id());
+                        vps.execute();
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage());
+                    }
+               });
+               fields_reset();
                con.close();
             }
         }
@@ -398,9 +434,13 @@ public class InsertStock extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_resetBtnKeyPressed
 
-    private void pthres1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pthres1ActionPerformed
+    private void vnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vnameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_pthres1ActionPerformed
+    }//GEN-LAST:event_vnameActionPerformed
+
+    private void addVendorBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addVendorBtnActionPerformed
+        new AddVendorInsert(this).setVisible(true);
+    }//GEN-LAST:event_addVendorBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -438,8 +478,8 @@ public class InsertStock extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addVendorBtn;
     private javax.swing.JButton exitButton;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -459,9 +499,9 @@ public class InsertStock extends javax.swing.JFrame {
     private javax.swing.JTextField pqty;
     private javax.swing.JTextField pret;
     private javax.swing.JTextField pthres;
-    private javax.swing.JTextField pthres1;
     private javax.swing.JButton resetBtn;
     private javax.swing.JButton saveBtn;
+    private javax.swing.JTextField vname;
     // End of variables declaration//GEN-END:variables
 
 
@@ -509,6 +549,14 @@ public class InsertStock extends javax.swing.JFrame {
         pthres.setText("");
         pprice.setText("");
         pret.setText("");
+        vname.setText("");
+    }
+    
+    public void set_Vendor(){
+        vendor.forEach((v)->{
+            vname.setText(v.getVendor_name());
+        });
+        
     }
 
 

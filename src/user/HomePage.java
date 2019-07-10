@@ -59,6 +59,7 @@ public class HomePage extends javax.swing.JFrame {
         clock = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Homepage");
         setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(44, 58, 71));

@@ -11,9 +11,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import objects.Product;
+import objects.Vendor;
 
 /**
  *
@@ -28,7 +34,9 @@ public class UpdateStock extends javax.swing.JFrame {
     Product p;
     StockManage sm;
     int prod_id;
+    public List <Vendor> vendors;
     public UpdateStock(int prod_id,StockManage sm) {
+        vendors = new ArrayList<>();
         this.sm = sm;
         this.prod_id = prod_id;
         initComponents();
@@ -45,6 +53,7 @@ public class UpdateStock extends javax.swing.JFrame {
                 else{
                     JOptionPane.showMessageDialog(null,"Product Not Found !");
                 }
+                
                 con.close();
             }
         }
@@ -386,6 +395,28 @@ public class UpdateStock extends javax.swing.JFrame {
                 ps_ret.setInt(2, prod_id);
                 ps_ret.execute();
                 
+                PreparedStatement get_v = con.prepareStatement("select * from vendor_product_details where product_id=?");
+                get_v.setInt(1, Integer.valueOf(pid.getText()));
+                
+                ResultSet rs = get_v.executeQuery();
+                List <Integer> v_ids = new ArrayList<>();
+                while(rs.next()){
+                    v_ids.add(rs.getInt("vendor_id"));
+                }
+                vendors.forEach((Vendor v) -> {
+                    if(!v_ids.contains(v.getVendor_id())){
+                        try {
+                            PreparedStatement ps = con.prepareStatement("INSERT INTO vendor_product_details(product_id,vendor_id) VALUES(?,?)");
+                            ps.setInt(1, Integer.valueOf(pid.getText()));
+                            ps.setInt(2, v.getVendor_id());
+                            ps.execute();
+                        } catch (SQLException ex) {
+                            JOptionPane.showMessageDialog(null, ex.getMessage());
+                        }
+                    }
+                });
+                
+                
                 sm.refresh_table();
                 this.dispose();
             }
@@ -465,7 +496,7 @@ public class UpdateStock extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        new AddVendor(this).setVisible(true);
+        new AddVendorUpdate(this).setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -500,7 +531,7 @@ public class UpdateStock extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
 
-    private void show_product_details() {
+    public void show_product_details() {
        
         pid.setText(String.valueOf(p.getProduct_id()));
         pname.setText(p.getProduct_name());
@@ -509,6 +540,12 @@ public class UpdateStock extends javax.swing.JFrame {
         pthres.setText(String.valueOf(p.getThreshold_qty()));
         pprice.setText(String.valueOf(p.getPrice()));
         pret.setText(String.valueOf(p.getReturn_period()));
+        
+        pvendor.setText("--");
+        vendors.forEach((Vendor v) -> {
+            String prev = pvendor.getText();
+            pvendor.setText(prev+v.getVendor_name()+" -- ");
+        });
         
     }
 
