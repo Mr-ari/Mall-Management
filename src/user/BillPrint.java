@@ -32,7 +32,6 @@ public class BillPrint extends javax.swing.JFrame {
     /**
      * Creates new form BillPrint
      */
-    private static BillPrint obj = null;
     List <OrderedProduct> orderedProd;
     double flatDiscount,total,returnPrice;
     String customerName,customerMob,customerAdd;
@@ -113,6 +112,7 @@ public class BillPrint extends javax.swing.JFrame {
             
             insert_bill_into_db();
             
+            new BillingPage().setVisible(true);
             this.dispose();
             
             
@@ -196,13 +196,6 @@ public class BillPrint extends javax.swing.JFrame {
     return tot;
     }
     
-    
-    public static BillPrint getObj(List <OrderedProduct> orderedProd, double flatDiscount,String customerName,String customerMob,String customerAdd,double returnPrice){
-        if(obj == null){
-            obj = new BillPrint(orderedProd,flatDiscount,customerName,customerMob,customerAdd,returnPrice);
-        }
-        return obj;
-    }
 
     private void insert_bill_into_db() {
        

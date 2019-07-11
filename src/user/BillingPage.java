@@ -451,7 +451,8 @@ public class BillingPage extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Flat Discount Value Out of range");
         }
         else{
-            BillPrint.getObj(orderedProd, flatDiscount,cusName.getText(),cusNo.getText(),cusAdd.getText(),this.returnPrice).setVisible(true);
+            new BillPrint(orderedProd, flatDiscount,cusName.getText(),cusNo.getText(),cusAdd.getText(),this.returnPrice).setVisible(true);
+            this.dispose();
         }
         
         
